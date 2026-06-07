@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app
+  namespace: production
+spec:
+  selector: { app: my-app }
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+  type: ClusterIP
+---
+# LoadBalancer option (for AWS EKS / GKE / AKS)
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-lb
+  namespace: production
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: external
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+spec:
+  selector: { app: my-app }
+  ports: [{ port: 80, targetPort: 8080 }]
+  type: LoadBalancer

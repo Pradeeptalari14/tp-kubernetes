@@ -1,0 +1,22 @@
+# Option: NetworkPolicy enabled — zero-trust pod networking
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: my-app-netpol
+  namespace: production
+spec:
+  podSelector:
+    matchLabels: { app: my-app }
+  policyTypes: [Ingress, Egress]
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels: { kubernetes.io/metadata.name: ingress-nginx }
+    ports: [{ port: 8080 }]
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels: { kubernetes.io/metadata.name: production }
+    ports: [{ port: 5432 }, { port: 6379 }]
+  - to: []
+    ports: [{ port: 53, protocol: UDP }]

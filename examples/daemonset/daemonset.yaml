@@ -1,0 +1,29 @@
+# Option: DaemonSet (for log collectors, monitoring agents)
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels: { app: node-exporter }
+  template:
+    metadata:
+      labels: { app: node-exporter }
+    spec:
+      hostNetwork: true
+      hostPID: true
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: node-exporter
+        image: prom/node-exporter:v1.8.0
+        ports: [{ containerPort: 9100 }]
+        volumeMounts:
+        - { name: proc, mountPath: /host/proc, readOnly: true }
+        - { name: sys,  mountPath: /host/sys,  readOnly: true }
+      volumes:
+      - { name: proc, hostPath: { path: /proc } }
+      - { name: sys,  hostPath: { path: /sys } }
